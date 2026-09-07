@@ -1,9 +1,13 @@
+import os
 import duckdb
 import pandas as pd
 import numpy as np
-from datetime import datetime, timedelta
+from datetime import datetime
 
-DB_PATH = "data/volume_data.duckdb"
+# Resolve path relative to the root project folder
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DATA_DIR = os.path.join(BASE_DIR, "data")
+DB_PATH = os.path.join(DATA_DIR, "volume_data.duckdb")
 
 class VolumeProcessor:
     def __init__(self, db_path=DB_PATH):
@@ -11,7 +15,10 @@ class VolumeProcessor:
         self._init_db()
 
     def _init_db(self):
-        """Initializes tables in DuckDB if they do not exist."""
+        """Creates the data/ folder if missing, then connects to DuckDB."""
+        # Ensure the target folder exists
+        os.makedirs(os.path.dirname(self.db_path), exist_ok=True)
+        
         conn = duckdb.connect(self.db_path)
         conn.execute("""
             CREATE TABLE IF NOT EXISTS index_volumes (
